@@ -111,15 +111,19 @@ PLAN_DATE AS(
     WHERE PLAN_ID = 3
 ),
 AVERAGE_CTE AS(
-SELECT DATEDIFF(ANNUAL_PLAN_DATE, JOIN_DATE) AS AVG_DAYS
+SELECT DATEDIFF(ANNUAL_PLAN_DATE, JOIN_DATE) AS DAYS
 FROM PLAN_DATE AS PD
 JOIN JOIN_DATE_CTE AS JD ON PD.CUSTOMER_ID = JD.CUSTOMER_ID)
 SELECT 
-	CONCAT(FLOOR(AVG_DAYS / 30) * 30, ' - ', (FLOOR(AVG_DAYS / 30) + 1) * 30, ' DAYS') AS BUCKET,
+	CONCAT(FLOOR(DAYS / 30) * 30, ' - ', (FLOOR(DAYS / 30) + 1) * 30, ' DAYS') AS BUCKET,
     COUNT(*) AS TOTAL
 FROM AVERAGE_CTE
 GROUP BY BUCKET
-ORDER BY BUCKET;
+-- MIN() is an aggregate function — so MySQL accepts it in ORDER BY without needing it in GROUP BY.
+-- Since all rows in the same bucket have the same FLOOR value anyway (e.g. all "30-60" rows have FLOOR = 1), 
+-- MIN(FLOOR(days/30)) and MAX(FLOOR(days/30)) would return the same value. 
+-- So MIN is just a trick to satisfy MySQL's ONLY_FULL_GROUP_BY rule(Error Code # 1055).
+ORDER BY FLOOR(DAYS/ 30);
 
 -- 11: HOW MANY CUSTOMERS DOWNGRADED FROM A PRO MONTHLY TO A BASIC MONTHLY PLAN IN 2020?
 
