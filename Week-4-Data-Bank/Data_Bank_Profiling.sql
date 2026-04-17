@@ -23,9 +23,13 @@ select
 from customer_nodes; 
 -- Result: No nulls found.
 
+select distinct customer_id 
+from customer_nodes;    		-- Using this query we can actually know about any unique value in our record, either it is a NULL, 'null' 
+								-- or any other type of null and blank record.
+
 select * from customer_nodes
 where customer_id in (NULL, ' ');
--- (Note: In a pipeline, we'd also check region_id and node_id here).
+-- (Note: In a pipeline, we'd also check region_id, node_id and other fields too here).
 
 -- 3: TEMPORAL BOUNDARY & PLACEHOLDER CHECK
 -- Looking for outliers in time. 
