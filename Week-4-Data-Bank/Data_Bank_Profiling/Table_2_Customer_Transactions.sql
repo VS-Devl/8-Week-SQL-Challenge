@@ -1,4 +1,4 @@
--- DATA PROFILING TABLE 1: customer_nodes
+-- DATA PROFILING TABLE 1: customer_transactions
 -- Goal: Identify anomalies, placeholders, and data distribution prior to ELT(Extract, Transform/ Load).
 
 -- 1: SCALE & GRANULARITY CHECK
