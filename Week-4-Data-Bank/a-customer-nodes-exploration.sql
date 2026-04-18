@@ -42,3 +42,29 @@ SELECT
     ROUND(AVG(duration), 0) AS avg_reallocation_days
 FROM date_cte;
 
+
+-- 5: What is the median, 80th and 95th percentile for this same reallocation days metric for each region?
+-- Constraint: MySQL lacks built-in PERCENTILE_CONT/MEDIAN functions.
+-- Workaround: Utilizing PERCENT_RANK() window function partitioned by region.
+WITH date_cte AS (
+    SELECT 
+        region_id, 
+        DATEDIFF(end_date, start_date) AS duration
+    FROM customer_nodes
+    WHERE end_date != '9999-12-31'
+),
+percentile_cte AS (
+    SELECT 
+        region_id,
+        duration,
+        PERCENT_RANK() OVER(PARTITION BY region_id ORDER BY duration) AS per_rank
+    FROM date_cte
+)
+-- Conditional Aggregation: Extracting specific percentile thresholds from the rank.
+SELECT 
+    region_id,
+    MAX(CASE WHEN per_rank <= 0.5 THEN duration END) AS median,
+    MAX(CASE WHEN per_rank <= 0.8 THEN duration END) AS p80th,
+    MAX(CASE WHEN per_rank <= 0.95 THEN duration END) AS p95th 
+FROM percentile_cte
+GROUP BY region_id;
