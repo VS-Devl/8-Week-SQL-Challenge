@@ -16,3 +16,14 @@ FROM customer_nodes
 GROUP BY region_id
 ORDER BY region_id ASC;
 
+
+-- 3: How many customers are allocated to each region?
+-- Logic: Determining the user-base distribution across the 5 regions. 
+-- Using DISTINCT ensures we count individual customers, not their movement history.
+SELECT 
+    region_id, 
+    COUNT(DISTINCT customer_id) AS total_customers
+FROM customer_nodes
+GROUP BY region_id
+ORDER BY region_id ASC;
+
