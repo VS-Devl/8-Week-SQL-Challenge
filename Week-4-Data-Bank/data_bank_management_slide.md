@@ -47,5 +47,5 @@
 
 **CONFIDENTIAL — FOR MANAGEMENT USE ONLY**
 *   **Period**: Jan–Apr 2020
-*   **Analyst**: M. Hammad Qureshi
 *   **Scope**: 500 Customers | 5,868 Transactions
+*   **Analyst**: M. Hammad Qureshi
