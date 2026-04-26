@@ -45,3 +45,12 @@ SELECT
 FROM weekly_sales_final
 GROUP BY calender_year;
 
+-- 4. What is the total sales for each region for each month?
+-- Logic: Leveraging the 'month_number' column created during data cleaning.
+SELECT 
+    region, 
+    month_number, 
+    SUM(sales) AS total_sales
+FROM weekly_sales_final
+GROUP BY region, month_number
+ORDER BY region ASC, month_number ASC;
