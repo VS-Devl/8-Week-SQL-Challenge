@@ -107,3 +107,15 @@ FROM weekly_sales_final
 WHERE platform = 'Retail'
 GROUP BY age_band, demographic
 ORDER BY total_sales DESC;
+
+-- 9. Can we use the avg_transaction column to find the true average?
+-- Analysis: No. Using the average of an average leads to 'Simpson’s Paradox', 
+-- which ignores the weight of the underlying transactions.
+-- Solution: Recalculate using (Total Sales / Total Transactions).
+SELECT 
+    calender_year, 
+    platform, 
+    ROUND(SUM(sales) / SUM(transactions), 2) AS true_avg_transaction_size
+FROM weekly_sales_final
+GROUP BY calender_year, platform
+ORDER BY calender_year, platform;
