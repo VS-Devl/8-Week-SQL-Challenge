@@ -98,3 +98,12 @@ FROM weekly_sales_final
 GROUP BY calender_year
 ORDER BY calender_year;
 
+-- 8. Which age_band and demographic values contribute the most to Retail sales?
+SELECT 
+    age_band, 
+    demographic, 
+    SUM(sales) AS total_sales
+FROM weekly_sales_final
+WHERE platform = 'Retail'
+GROUP BY age_band, demographic
+ORDER BY total_sales DESC;
