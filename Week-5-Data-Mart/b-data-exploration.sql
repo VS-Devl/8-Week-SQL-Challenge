@@ -35,3 +35,13 @@ SELECT
     CONCAT(MIN(week_num), '-', MAX(week_num)) AS missing_range
 FROM missing_weeks_range
 GROUP BY gap_id;
+
+-- 3. How many total transactions were there for each year in the dataset?
+-- Logic: Since the 'transactions' column is already a pre-aggregated count,
+-- we must use SUM() to find the total volume rather than COUNT().
+SELECT 
+    calender_year, 
+    SUM(transactions) AS total_transactions
+FROM weekly_sales_final
+GROUP BY calender_year;
+
