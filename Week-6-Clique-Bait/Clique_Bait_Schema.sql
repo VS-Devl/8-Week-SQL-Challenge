@@ -1,4 +1,4 @@
-CREATE DATABASE clique_bait;    -- MySql Workbench
+CREATE DATABASE clique_bait;
 use clique_bait;
 
 CREATE TABLE clique_bait.event_identifier (
