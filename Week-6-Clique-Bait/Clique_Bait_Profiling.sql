@@ -14,8 +14,8 @@
 --                        ALWAYS use user_id for people counts
 --                        NEVER use cookie_id — inflates count by ~3.5x
 -- ============================================================
-
 -- TABLE 1: campaign_identifier
+-- ============================================================
 
 -- Data Type and Schema Validation
 DESCRIBE campaign_identifier;
@@ -50,3 +50,17 @@ FROM date_cte
 WHERE end_date > next_campaign_start;
 -- Result: No overlapping campaigns — each campaign runs in its own window
 
+-- ============================================================
+-- TABLE 2: event_identifier
+-- ============================================================
+
+-- Data Type and Schema Validation
+DESCRIBE event_identifier;
+
+SELECT column_name, is_nullable, data_type, character_maximum_length
+FROM information_schema.columns
+WHERE table_name = 'event_identifier';
+
+-- Full table inspection (only 5 rows — no further checks needed)
+SELECT * FROM event_identifier;
+-- Result: 5 event types, all clean, no nulls, no anomalies
