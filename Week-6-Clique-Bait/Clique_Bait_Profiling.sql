@@ -162,3 +162,121 @@ SELECT * FROM page_hierarchy;
 --       non-product pages (Home Page, All Products, Checkout, Purchase)
 --       do not have product information. These NULLs are business-valid.
 
+-- ============================================================
+-- TABLE 5: users
+-- ============================================================
+
+-- Data Type and Schema Validation
+DESCRIBE users;
+
+SELECT column_name, data_type, character_maximum_length, is_nullable
+FROM information_schema.columns
+WHERE table_name = 'users';
+
+-- Duplicate Check
+WITH duplicates_cte AS (
+    SELECT *,
+        ROW_NUMBER() OVER(PARTITION BY user_id, cookie_id, start_date) AS row_num
+    FROM users
+)
+SELECT *
+FROM duplicates_cte
+WHERE row_num > 1;
+-- Result: No duplicates found
+
+-- Granularity Check — CRITICAL FINDING
+SELECT
+    COUNT(DISTINCT user_id)   AS unique_users,
+    COUNT(DISTINCT cookie_id) AS unique_cookies
+FROM users;
+-- Result: 500 unique users | 1782 unique cookie_ids
+-- CRITICAL INSIGHT: One user averages 3-4 cookie_ids
+-- This is EXPECTED behavior — users browse from multiple devices
+-- and browsers (phone, laptop, incognito, Firefox, Chrome etc.)
+-- Each device/browser session generates a NEW cookie_id
+-- Rule: ALWAYS count user_id for people. NEVER count cookie_id — inflates by ~3.5x
+
+-- Multi-Cookie User Check
+-- Confirming that users genuinely have multiple cookies
+SELECT user_id, COUNT(DISTINCT cookie_id) AS cookie_count
+FROM users
+GROUP BY user_id
+HAVING cookie_count > 1
+ORDER BY cookie_count DESC;
+-- Result: Many users have multiple cookie_ids — confirmed expected behavior
+
+-- Date Range Check
+SELECT MAX(start_date), MIN(start_date)
+FROM users;
+-- Result: No sentinel or unrealistic dates in start_date
+
+
+-- ============================================================
+-- REFERENTIAL INTEGRITY CHECKS & ORPHAN RECORDS
+-- ============================================================
+-- Checking all foreign key relationships across tables
+-- to ensure no orphan records exist in any direction
+-- ============================================================
+
+-- Check 1: users ↔ events via cookie_id
+-- Matching count check
+SELECT
+    COUNT(DISTINCT e.cookie_id) AS events_cookies,
+    COUNT(DISTINCT u.cookie_id) AS users_cookies
+FROM users AS u
+JOIN events AS e ON u.cookie_id = e.cookie_id;
+
+-- Orphan check: cookies in users but not in events
+SELECT u.cookie_id
+FROM users AS u
+LEFT JOIN events AS e ON u.cookie_id = e.cookie_id
+WHERE e.cookie_id IS NULL;
+
+-- Orphan check: cookies in events but not in users
+SELECT e.cookie_id
+FROM users AS u
+RIGHT JOIN events AS e ON u.cookie_id = e.cookie_id
+WHERE u.cookie_id IS NULL;
+-- Result: No orphan records in either direction ✅
+
+-- Check 2: page_hierarchy ↔ events via page_id
+-- Matching count check
+SELECT
+    COUNT(DISTINCT e.page_id)  AS events_pages,
+    COUNT(DISTINCT ph.page_id) AS hierarchy_pages
+FROM events AS e
+JOIN page_hierarchy AS ph ON e.page_id = ph.page_id;
+
+-- Orphan check: page_ids in events but not in page_hierarchy
+SELECT e.page_id
+FROM events AS e
+LEFT JOIN page_hierarchy AS ph ON e.page_id = ph.page_id
+WHERE ph.page_id IS NULL;
+
+-- Orphan check: page_ids in page_hierarchy but not in events
+SELECT ph.page_id
+FROM events AS e
+RIGHT JOIN page_hierarchy AS ph ON e.page_id = ph.page_id
+WHERE e.page_id IS NULL;
+-- Result: No orphan records in either direction ✅
+
+-- Check 3: event_identifier ↔ events via event_type
+-- Matching count check
+SELECT
+    COUNT(DISTINCT e.event_type)  AS events_types,
+    COUNT(DISTINCT ev.event_type) AS identifier_types
+FROM events AS e
+LEFT JOIN event_identifier AS ev ON e.event_type = ev.event_type;
+
+-- Orphan check: event_types in events but not in event_identifier
+SELECT e.event_type
+FROM events AS e
+LEFT JOIN event_identifier AS ev ON e.event_type = ev.event_type
+WHERE ev.event_type IS NULL;
+
+-- Orphan check: event_types in event_identifier but not in events
+SELECT ev.event_type
+FROM events AS e
+RIGHT JOIN event_identifier AS ev ON e.event_type = ev.event_type
+WHERE e.event_type IS NULL;
+-- Result: No orphan records in either direction ✅
