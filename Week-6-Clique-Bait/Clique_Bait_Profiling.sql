@@ -143,3 +143,22 @@ SELECT
         THEN 1 ELSE 0 END)        AS time_null
 FROM events;
 -- Result: No NULL, blank, or corrupted values found in any column
+
+-- ============================================================
+-- TABLE 4: page_hierarchy
+-- ============================================================
+
+-- Data Type and Schema Validation
+DESCRIBE page_hierarchy;
+
+SELECT column_name, data_type, character_maximum_length, is_nullable
+FROM information_schema.columns
+WHERE table_name = 'page_hierarchy';
+
+-- Full table inspection
+SELECT * FROM page_hierarchy;
+-- Result: 13 unique page_ids with page_name, product_category, product_id
+-- Note: NULL values in product_category and product_id are EXPECTED —
+--       non-product pages (Home Page, All Products, Checkout, Purchase)
+--       do not have product information. These NULLs are business-valid.
+
