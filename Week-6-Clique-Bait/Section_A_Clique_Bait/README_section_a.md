@@ -1,12 +1,3 @@
-# Week 6 — Clique Bait 🎣
-### 8 Week SQL Challenge by Danny Ma
-**Tool:** MySQL Workbench | **Author:** Muhammad Hammad Qureshi
-
-[![GitHub](https://img.shields.io/badge/GitHub-m--hammad--qureshi-blue)](https://github.com/m-hammad-qureshi)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-m--hammad--qureshi-blue)](https://linkedin.com/in/m-hammad-qureshi)
-
----
-
 ## Section A — Entity Relationship Diagram
 
 ![Clique Bait ERD](clique_bait_erd.png)
