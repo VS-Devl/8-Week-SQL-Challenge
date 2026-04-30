@@ -50,3 +50,21 @@ GROUP BY date_month;
 
 -- Result: February has highest visits — possible seasonal peak
 -- Seafood demand may peak in certain months for fishing season
+
+-- ============================================================
+-- Q4: What is the number of events for each event type?
+-- ============================================================
+-- Note: Joining event_identifier to show readable names
+--       instead of raw event_type numbers
+-- ============================================================
+
+SELECT
+    ef.event_name,
+    COUNT(*) AS total_events
+FROM events AS e
+JOIN event_identifier AS ef ON e.event_type = ef.event_type
+GROUP BY ef.event_name;
+
+-- Result: Page View is highest — every visit starts with at least one
+-- Natural funnel: Page View → Add to Cart → Purchase
+
