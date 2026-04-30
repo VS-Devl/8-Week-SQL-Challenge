@@ -68,3 +68,26 @@ GROUP BY ef.event_name;
 -- Result: Page View is highest — every visit starts with at least one
 -- Natural funnel: Page View → Add to Cart → Purchase
 
+
+-- ============================================================
+-- Q5: What is the percentage of visits which have a purchase event?
+-- ============================================================
+-- Formula : purchase visits / total unique visits * 100
+-- Key     : Denominator must be COUNT(DISTINCT visit_id) not COUNT(*)
+--           COUNT(*) counts all events — inflates denominator
+-- ============================================================
+
+WITH percent_cte AS (
+    SELECT COUNT(*) AS total_purchase
+    FROM events AS e
+    JOIN event_identifier AS ef ON e.event_type = ef.event_type
+    WHERE ef.event_name = 'Purchase'
+)
+SELECT ROUND(
+    total_purchase / (SELECT COUNT(DISTINCT visit_id) FROM events) * 100,
+    2
+) AS purchase_percent
+FROM percent_cte;
+
+-- Result: 49.86% of visits result in a purchase
+-- Strong conversion rate for an online store
