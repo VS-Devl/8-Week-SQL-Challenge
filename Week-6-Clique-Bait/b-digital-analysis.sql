@@ -176,3 +176,46 @@ ORDER BY 2 DESC;
 
 -- Result: Shellfish dominates both views and cart adds
 -- Consistent with Q7 — Lobster and Crab are hero products
+
+
+-- ============================================================
+-- Q9: What are the top 3 products by purchases?
+-- ============================================================
+-- Key Insight: Purchase event happens on confirmation page
+--   NOT on the product page — so we can't just count purchase events
+--   per product directly.
+-- Solution:
+--   CTE 1 → products that were Added to Cart (which visit + which product)
+--   CTE 2 → visits that completed a Purchase
+--   JOIN on visit_id → products in cart that also had a purchase = purchased!
+-- ============================================================
+
+WITH cart_cte AS (
+    -- Products added to cart — capturing visit_id + product name
+    SELECT
+        ev.visit_id,
+        pg.page_name
+    FROM events AS ev
+    JOIN page_hierarchy    AS pg ON ev.page_id    = pg.page_id
+    JOIN event_identifier  AS ef ON ev.event_type = ef.event_type
+    WHERE ef.event_name = 'Add to Cart'
+),
+purchase_cte AS (
+    -- Visits that completed a purchase
+    SELECT ev.visit_id
+    FROM events AS ev
+    JOIN event_identifier AS ef ON ev.event_type = ef.event_type
+    WHERE ef.event_name = 'Purchase'
+)
+SELECT
+    cc.page_name,
+    COUNT(*) AS total_purchases
+FROM cart_cte    AS cc
+JOIN purchase_cte AS pc ON cc.visit_id = pc.visit_id
+GROUP BY cc.page_name
+ORDER BY total_purchases DESC
+LIMIT 3;
+
+-- Result: Lobster 754 | Oyster 726 | Crab 719
+-- All shellfish — consistent finding across Q7, Q8, Q9
+-- Shellfish is the hero category driving Clique Bait's business
