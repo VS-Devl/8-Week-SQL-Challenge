@@ -152,3 +152,27 @@ LIMIT 3;
 
 -- Result: All Products, Lobster, Crab are top 3
 -- Shellfish products dominate page views
+
+-- ============================================================
+-- Q8: What is the number of views and cart adds
+--     for each product category?
+-- ============================================================
+-- Pattern : COUNT(CASE WHEN condition THEN value END)
+--   Why no ELSE? COUNT ignores NULL values automatically.
+--   When condition is FALSE → implicit NULL → not counted.
+--   No need for ELSE 0 unlike SUM pattern.
+-- ============================================================
+
+SELECT
+    ph.product_category,
+    COUNT(CASE WHEN ef.event_name = 'Page View'    THEN ph.product_category END) AS total_views,
+    COUNT(CASE WHEN ef.event_name = 'Add to Cart'  THEN ph.product_category END) AS cart_adds
+FROM events AS e
+JOIN event_identifier AS ef ON e.event_type = ef.event_type
+JOIN page_hierarchy   AS ph ON e.page_id    = ph.page_id
+WHERE ph.product_category IS NOT NULL
+GROUP BY ph.product_category
+ORDER BY 2 DESC;
+
+-- Result: Shellfish dominates both views and cart adds
+-- Consistent with Q7 — Lobster and Crab are hero products
