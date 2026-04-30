@@ -136,3 +136,19 @@ FROM percent_cte;
 -- Business Insight: Cart abandonment — these are warm leads
 -- Recommendation: Investigate checkout friction, consider
 -- abandonment email campaigns to recover these visits
+
+-- ============================================================
+-- Q7: What are the top 3 pages by number of views?
+-- ============================================================
+
+SELECT
+    pge.page_name,
+    COUNT(*) AS total_views
+FROM events AS evt
+JOIN page_hierarchy AS pge ON evt.page_id = pge.page_id
+GROUP BY pge.page_name
+ORDER BY total_views DESC
+LIMIT 3;
+
+-- Result: All Products, Lobster, Crab are top 3
+-- Shellfish products dominate page views
