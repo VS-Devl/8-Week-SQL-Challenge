@@ -37,3 +37,16 @@ FROM avg_cte;
 
 -- Result: 3.56 cookies per user on average
 -- Confirms profiling finding: one user = multiple devices/browsers
+
+-- ============================================================
+-- Q3: What is the unique number of visits by all users per month?
+-- ============================================================
+
+SELECT
+    MONTH(event_time) AS date_month,
+    COUNT(DISTINCT visit_id) AS total_visits
+FROM events
+GROUP BY date_month;
+
+-- Result: February has highest visits — possible seasonal peak
+-- Seafood demand may peak in certain months for fishing season
