@@ -86,3 +86,73 @@ JOIN sold_cte     AS sc ON pro.page_name = sc.page_name;
 -- Russian Caviar 1563  946  249  697
 -- Salmon         1559  938  227  711
 -- Abalone        1525  932  233  699
+
+
+-- ============================================================
+-- REFERENCE TABLE 2: Product Category
+-- Same metrics aggregated by category instead of product
+-- ============================================================
+-- Identical structure to Table 1 — page_name replaced
+-- with product_category throughout
+-- ============================================================
+
+CREATE TABLE product_category AS
+WITH products_cte AS (
+    SELECT
+        ph.product_category,
+        COUNT(CASE WHEN ef.event_name = 'Page View'   THEN ph.page_name END) AS product_viewed,
+        COUNT(CASE WHEN ef.event_name = 'Add to Cart' THEN ph.page_name END) AS product_in_cart
+    FROM events AS ev
+    JOIN page_hierarchy   AS ph ON ev.page_id    = ph.page_id
+    JOIN event_identifier AS ef ON ev.event_type = ef.event_type
+    WHERE ph.product_category IS NOT NULL
+    GROUP BY ph.product_category
+),
+added_cte AS (
+    SELECT ev.visit_id, ph.product_category
+    FROM events AS ev
+    JOIN event_identifier AS ef ON ev.event_type = ef.event_type
+    JOIN page_hierarchy   AS ph ON ev.page_id    = ph.page_id
+    WHERE ef.event_name = 'Add to Cart'
+),
+purchase_cte AS (
+    SELECT ev.visit_id, ph.product_category
+    FROM events AS ev
+    JOIN event_identifier AS ef ON ev.event_type = ef.event_type
+    JOIN page_hierarchy   AS ph ON ev.page_id    = ph.page_id
+    WHERE ef.event_name = 'Purchase'
+),
+abundun_cte AS (
+    SELECT
+        ac.product_category,
+        COUNT(ac.visit_id) AS product_abunduned
+    FROM purchase_cte AS pc
+    RIGHT JOIN added_cte AS ac ON pc.visit_id = ac.visit_id
+    WHERE pc.visit_id IS NULL
+    GROUP BY ac.product_category
+),
+sold_cte AS (
+    SELECT
+        ac.product_category,
+        COUNT(ac.visit_id) AS product_purchased
+    FROM purchase_cte AS pc
+    JOIN added_cte    AS ac ON pc.visit_id = ac.visit_id
+    GROUP BY ac.product_category
+)
+SELECT
+    pro.product_category,
+    pro.product_viewed,
+    pro.product_in_cart,
+    ac.product_abunduned,
+    sc.product_purchased
+FROM products_cte AS pro
+JOIN abundun_cte  AS ac ON pro.product_category = ac.product_category
+JOIN sold_cte     AS sc ON pro.product_category = sc.product_category;
+
+-- Results:
+-- Shellfish  6204  3792  894  2898  → abandonment rate 23.6% 
+-- Fish       4633  2789  674  2115  → abandonment rate 24.2%
+-- Luxury     3032  1870  466  1404  → abandonment rate 24.9% (highest)
+-- Abandonment rate = abandoned / cart adds × 100
+-- Business Insight: Luxury has highest abandonment — price sensitivity
+-- Russian Caviar specifically drives this with 249 abandonments
