@@ -232,3 +232,26 @@ FROM products;
 
 -- Result: 60.95%
 -- 60.95% of product viewers add the product to cart
+
+-- ============================================================
+-- Q5: What is the average conversion rate from cart add to purchase?
+-- ============================================================
+-- Formula : AVG(product_purchased / product_in_cart * 100)
+-- ============================================================
+
+SELECT
+    ROUND(AVG((product_purchased / product_in_cart) * 100), 2) AS cart_to_purchase_percent
+FROM products;
+
+-- Result: 75.93%
+-- Once in cart — 75.93% of products get purchased
+
+-- ============================================================
+-- FULL FUNNEL SUMMARY:
+-- View → Cart Add  : 60.95%
+-- Cart Add → Purchase: 75.93%
+-- View → Purchase  : 46.28%
+-- Key Insight: Biggest drop happens at View→Cart stage
+-- Focus: Improve product page quality to drive more cart adds
+-- The cart→purchase rate is already strong at 75.93%
+-- ============================================================
