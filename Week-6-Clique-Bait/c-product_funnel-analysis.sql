@@ -202,3 +202,20 @@ LIMIT 1;
 -- Result: Russian Caviar — 249 abandonments
 -- Insight: Price sensitivity — people browse luxury items
 -- but abandon at checkout when total cost is visible
+
+
+-- ============================================================
+-- Q3: Which product had the highest view to purchase percentage?
+-- ============================================================
+-- Formula : product_purchased / product_viewed * 100
+-- ============================================================
+
+SELECT
+    page_name AS product_name,
+    ROUND((product_purchased / product_viewed) * 100, 2) AS conversion_percent
+FROM products
+ORDER BY 2 DESC
+LIMIT 1;
+
+-- Result: Lobster — 48.74% view to purchase conversion
+-- Almost 1 in 2 people who view Lobster end up buying it
