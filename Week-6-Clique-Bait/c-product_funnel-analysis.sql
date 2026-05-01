@@ -219,3 +219,16 @@ LIMIT 1;
 
 -- Result: Lobster — 48.74% view to purchase conversion
 -- Almost 1 in 2 people who view Lobster end up buying it
+
+-- ============================================================
+-- Q4: What is the average conversion rate from view to cart add?
+-- ============================================================
+-- Formula : AVG(product_in_cart / product_viewed * 100)
+-- ============================================================
+
+SELECT
+    ROUND(AVG((product_in_cart / product_viewed) * 100), 2) AS view_to_cart_percent
+FROM products;
+
+-- Result: 60.95%
+-- 60.95% of product viewers add the product to cart
