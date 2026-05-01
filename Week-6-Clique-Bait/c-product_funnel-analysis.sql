@@ -156,3 +156,34 @@ JOIN sold_cte     AS sc ON pro.product_category = sc.product_category;
 -- Abandonment rate = abandoned / cart adds × 100
 -- Business Insight: Luxury has highest abandonment — price sensitivity
 -- Russian Caviar specifically drives this with 249 abandonments
+
+-- ============================================================
+-- Q1: Which product had the most views, cart adds and purchases?
+-- ============================================================
+-- Pattern : 3 single-row CTEs → CROSS JOIN (no condition needed)
+--           CROSS JOIN used because each CTE returns exactly one row
+-- ============================================================
+
+WITH most_viewed AS (
+    SELECT page_name, product_viewed
+    FROM products
+    ORDER BY 2 DESC LIMIT 1
+),
+cart_adds AS (
+    SELECT page_name, product_in_cart
+    FROM products
+    ORDER BY 2 DESC LIMIT 1
+),
+most_purchased AS (
+    SELECT page_name, product_purchased
+    FROM products
+    ORDER BY 2 DESC LIMIT 1
+)
+SELECT *
+FROM most_purchased
+CROSS JOIN cart_adds
+CROSS JOIN most_viewed;
+
+-- Result: Lobster (purchased + cart adds) | Oyster (most viewed)
+-- Insight: Oyster attracts most browsers but Lobster converts best
+-- Lobster is the hero product — most cart adds AND most purchased
