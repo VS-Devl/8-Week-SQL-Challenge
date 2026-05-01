@@ -187,3 +187,18 @@ CROSS JOIN most_viewed;
 -- Result: Lobster (purchased + cart adds) | Oyster (most viewed)
 -- Insight: Oyster attracts most browsers but Lobster converts best
 -- Lobster is the hero product — most cart adds AND most purchased
+
+-- ============================================================
+-- Q2: Which product was most likely to be abandoned?
+-- ============================================================
+
+SELECT
+    page_name        AS product_name,
+    product_abunduned AS total_abandoned
+FROM products
+ORDER BY 2 DESC
+LIMIT 1;
+
+-- Result: Russian Caviar — 249 abandonments
+-- Insight: Price sensitivity — people browse luxury items
+-- but abandon at checkout when total cost is visible
