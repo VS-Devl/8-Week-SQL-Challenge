@@ -78,3 +78,23 @@ LEFT JOIN campaign_identifier AS ci
 -- 001597 | 155 | 2020-02-17 00:21:45 | 10 | 6 | 1
 -- | Half Off - Treat Your Shellf(ish) | 1 | 1
 -- | Salmon, Russian Caviar, Black Truffle, Lobster, Crab, Oyster
+
+-- ============================================================
+-- BONUS: Normalize campaign_identifier.products
+-- The products column stores denormalized ranges like "1-3"
+-- meaning product IDs 1, 2, AND 3 — not just 1 and 3
+-- ============================================================
+
+-- Attempt 1: JSON_TABLE approach
+-- Converts "1-3" to ["1","3"] — only extracts endpoints, misses middle values
+SELECT
+    jt.product_id,
+    ph.page_name,
+    ph.product_category,
+    ci.campaign_name
+FROM campaign_identifier AS ci
+CROSS JOIN JSON_TABLE(
+    CONCAT('["', REPLACE(products, '-', '", "'), '"]'),
+    '$[*]' COLUMNS (product_id TEXT PATH '$')
+) AS jt
+JOIN page_hierarchy AS ph ON ph.product_id = jt.product_id;
