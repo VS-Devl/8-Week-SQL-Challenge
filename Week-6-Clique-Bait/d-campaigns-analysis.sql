@@ -98,3 +98,39 @@ CROSS JOIN JSON_TABLE(
     '$[*]' COLUMNS (product_id TEXT PATH '$')
 ) AS jt
 JOIN page_hierarchy AS ph ON ph.product_id = jt.product_id;
+
+-- Attempt 2: Recursive CTE approach (correct solution)
+-- Extracts start and end of range, generates ALL numbers between them
+-- LEFT(products, 1) → start number | RIGHT(products, 1) → end number
+-- Recursive member increments by 1 until start = end
+WITH RECURSIVE first_cte AS (
+    SELECT
+        LEFT(products, 1)  AS first_chr,   -- start of range e.g. 1
+        RIGHT(products, 1) AS last_chr,    -- end of range e.g. 3
+        campaign_id,
+        campaign_name,
+        start_date,
+        end_date
+    FROM campaign_identifier
+),
+mid_cte AS (
+    -- Anchor: start from first_chr
+    SELECT first_chr, last_chr, campaign_id, campaign_name, start_date, end_date
+    FROM first_cte
+    UNION ALL
+    -- Recursive: increment by 1 until first_chr = last_chr
+    SELECT first_chr + 1, last_chr, campaign_id, campaign_name, start_date, end_date
+    FROM mid_cte
+    WHERE first_chr < last_chr
+)
+SELECT
+    first_chr  AS product_id,
+    campaign_id,
+    campaign_name,
+    start_date,
+    end_date
+FROM mid_cte
+ORDER BY product_id;
+-- Result: "1-3" correctly expands to product_ids 1, 2, 3
+-- Can be joined with page_hierarchy to get product names per campaign
+
