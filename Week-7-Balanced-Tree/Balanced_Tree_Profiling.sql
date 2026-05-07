@@ -62,3 +62,69 @@ While performing data profiling on the sales table, here is what was found:
 - Date range is clean from 2021-01-01 to 2021-03-30. No sentinel values like '9999-12-31'.
 - No outlier or zero values found in the price column.
 */
+
+-- ============================================================
+-- DATA PROFILING — PRODUCT_DETAILS TABLE
+-- ============================================================
+
+-- 1. DATA TYPE AND SCHEMA VALIDATION
+DESCRIBE product_details;
+select column_name, data_type, character_maximum_length, is_nullable
+from information_schema.columns
+where table_name = 'product_details';
+
+
+-- 2. DUPLICATE CHECK
+with duplicate_cte as(
+select *, ROW_NUMBER() OVER(PARTITION BY product_id, price, product_name, category_id, segment_id, style_id, category_name, segment_name, style_name) as row_num
+from product_details
+)
+select * from duplicate_cte
+where row_num > 1;
+
+
+-- 3. CATEGORICAL CHECK
+select distinct product_name from product_details;
+select distinct category_name from product_details;
+select distinct segment_name from product_details;
+select distinct style_name from product_details;
+
+
+-- 4. GRANULARITY CHECK
+select count(distinct product_name) from product_details;  -- 12 unique products, matching sales table
+select count(distinct category_name) from product_details; -- 2 unique categories (Mens, Womens)
+select count(distinct segment_name) from product_details;  -- 4 unique segments
+select count(distinct style_name) from product_details;    -- 12 unique style names matching product count
+
+
+-- 5. OUTLIER CHECK — PRICE
+select price from product_details order by price desc;
+select price from product_details order by price asc;
+-- no zero values, no outliers, no data errors in price column
+
+
+-- 6. NULL / BLANK VALUES CHECK
+select 
+	sum(case when product_id is null or product_id = '' then 1 else 0 end) as product_null,
+    sum(case when price is null or price = '' then 1 else 0 end) as price_null,
+    sum(case when product_name is null or product_name = '' then 1 else 0 end) as product_name_null,
+    sum(case when category_id is null or category_id = '' then 1 else 0 end) as category_null,
+    sum(case when segment_id is null or segment_id = '' then 1 else 0 end) as segment_null,
+    sum(case when style_id is null or style_id = '' then 1 else 0 end) as style_null,
+    sum(case when category_name is null or category_name = '' then 1 else 0 end) as category_name_null,
+    sum(case when segment_name is null or segment_name = '' then 1 else 0 end) as segment_name_null,
+    sum(case when style_name is null or style_name = '' then 1 else 0 end) as style_name_null
+from product_details;
+
+
+/*
+PROFILING SUMMARY — PRODUCT_DETAILS TABLE
+- 12 unique products matching exactly with the sales table.
+- 2 categories (Mens, Womens), 4 segments, 12 style names.
+- No duplicates found.
+- Data types are correctly defined, no errors.
+- No NULL or blank values found in any column.
+- No zero or outlier values in the price column.
+- Table is in denormalized form — category, segment and style IDs
+  with their names are combined into one table for easy reference.
+*/
