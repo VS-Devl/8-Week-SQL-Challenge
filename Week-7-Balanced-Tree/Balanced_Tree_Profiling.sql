@@ -1,5 +1,5 @@
 -- Week 6 — Balanced Tree Clothing Co.
--- Data Profiling & Quality Audit — All 4 Tables
+-- Data Profiling & Quality Audit 
 -- ============================================================
 -- DATA PROFILING — SALES TABLE
 -- ============================================================
@@ -127,4 +127,26 @@ PROFILING SUMMARY — PRODUCT_DETAILS TABLE
 - No zero or outlier values in the price column.
 - Table is in denormalized form — category, segment and style IDs
   with their names are combined into one table for easy reference.
+*/
+
+-- REFERENTIAL INTEGRITY CHECK and ORPHAN RECORDS — PRODUCT_DETAILS vs SALES
+select pd.product_id
+from product_details as pd
+left join sales as s on pd.product_id = s.prod_id
+where s.prod_id is null;
+-- no product_ids in product_details that are missing from sales
+
+select s.prod_id
+from product_details as pd
+right join sales as s on pd.product_id = s.prod_id
+where pd.product_id is null;
+-- no prod_ids in sales that are missing from product_details
+
+select count(distinct pd.product_id), count(distinct s.prod_id)
+from product_details as pd
+left join sales as s on pd.product_id = s.prod_id;
+-- both counts match — referential integrity confirmed
+
+/*
+Referential integrity confirmed — all product_ids in product_details match prod_ids in sales.
 */
