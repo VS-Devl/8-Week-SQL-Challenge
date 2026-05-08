@@ -19,3 +19,21 @@ SELECT ROUND(AVG(unique_products), 2) AS avg_unique_products
 FROM average_cte;
 -- Result: 6.04 unique products per transaction on average
 
+-- 3: What are the 25th, 50th and 75th percentile values for the revenue per transaction?
+-- Step 1: Calculate revenue per transaction
+-- Step 2: Apply PERCENT_RANK() and filter at each percentile boundary using MAX(CASE WHEN)
+WITH revenue_cte AS (
+    SELECT txn_id, SUM(qty * price) AS revenue
+    FROM sales
+    GROUP BY txn_id
+),
+rank_cte AS (
+    SELECT *, PERCENT_RANK() OVER(ORDER BY revenue) AS pr_rank
+    FROM revenue_cte
+)
+SELECT 
+    MAX(CASE WHEN pr_rank <= 0.25 THEN revenue END) AS `25th_percentile`,
+    MAX(CASE WHEN pr_rank <= 0.50 THEN revenue END) AS `50th_percentile`,
+    MAX(CASE WHEN pr_rank <= 0.75 THEN revenue END) AS `75th_percentile`
+FROM rank_cte;
+-- Result: 375 | 509 | 647
