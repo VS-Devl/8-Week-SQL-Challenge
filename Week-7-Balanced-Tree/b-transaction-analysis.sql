@@ -49,3 +49,17 @@ WITH average_cte AS (
 SELECT ROUND(AVG(discounted_amount), 2) AS avg_discount_value
 FROM average_cte;
 -- Result: 62.49 average discount per transaction
+
+-- 5: What is the percentage split of all transactions for members vs non-members?
+-- Using COUNT(DISTINCT txn_id) — grain is transactions not rows
+WITH percent_cte AS (
+    SELECT member, COUNT(DISTINCT txn_id) AS unique_transactions
+    FROM sales
+    GROUP BY member
+)
+SELECT 
+    member, 
+    unique_transactions,
+    ROUND(unique_transactions / (SELECT COUNT(DISTINCT txn_id) FROM sales) * 100, 2) AS percent_split
+FROM percent_cte;
+-- Result: t = 60.20% | f = 39.80%
