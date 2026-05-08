@@ -37,3 +37,15 @@ SELECT
     MAX(CASE WHEN pr_rank <= 0.75 THEN revenue END) AS `75th_percentile`
 FROM rank_cte;
 -- Result: 375 | 509 | 647
+
+-- 4: What is the average discount value per transaction?
+-- Step 1: Calculate actual discount amount per transaction (qty * price * discount / 100)
+-- Step 2: Take average of those totals
+WITH average_cte AS (
+    SELECT txn_id, ROUND(SUM(qty * price * discount / 100), 2) AS discounted_amount 
+    FROM sales
+    GROUP BY txn_id
+)
+SELECT ROUND(AVG(discounted_amount), 2) AS avg_discount_value
+FROM average_cte;
+-- Result: 62.49 average discount per transaction
