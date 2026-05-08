@@ -63,3 +63,18 @@ SELECT
     ROUND(unique_transactions / (SELECT COUNT(DISTINCT txn_id) FROM sales) * 100, 2) AS percent_split
 FROM percent_cte;
 -- Result: t = 60.20% | f = 39.80%
+
+-- 6: What is the average revenue for member transactions and non-member transactions?
+-- Step 1: Calculate total revenue per transaction with member flag
+-- Step 2: Average those totals grouped by member
+WITH average_cte AS (
+    SELECT txn_id, member, SUM(qty * price) AS revenue
+    FROM sales
+    GROUP BY txn_id, member
+)
+SELECT 
+    member, 
+    ROUND(AVG(revenue), 2) AS avg_revenue
+FROM average_cte
+GROUP BY member;
+-- Result: t = 516.27 | f = 515.04
