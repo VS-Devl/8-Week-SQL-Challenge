@@ -13,7 +13,6 @@ WHERE table_name = 'interest_metrics';
 -- _month, _year, month_year and interest_id are stored as VARCHAR
 -- these need to be fixed during the data cleaning phase
 
-
 -- 2. DUPLICATE CHECK
 WITH duplicate_cte AS (
     SELECT *, 
@@ -26,37 +25,27 @@ FROM duplicate_cte
 WHERE row_num > 1;
 -- Result: 30 exact duplicate rows found — to be removed during cleaning
 
-
 -- 3. CATEGORICAL CHECK
 SELECT DISTINCT _month FROM interest_metrics ORDER BY _month DESC;
 -- NULL string value found — needs to be converted to actual NULL
-
 SELECT DISTINCT _year FROM interest_metrics ORDER BY _year DESC;
 -- NULL string value found — needs to be converted to actual NULL
-
 SELECT DISTINCT month_year FROM interest_metrics ORDER BY month_year DESC;
 -- NULL string value found — needs to be converted to actual NULL
-
 SELECT DISTINCT interest_id FROM interest_metrics ORDER BY interest_id DESC;
 -- NULL string value found — needs to be converted to actual NULL
-
 SELECT DISTINCT composition FROM interest_metrics ORDER BY composition;
 -- No inconsistent values, no NULL strings, no zero values
-
 SELECT DISTINCT index_value FROM interest_metrics ORDER BY index_value;
 -- No inconsistent data found
-
 SELECT DISTINCT ranking FROM interest_metrics ORDER BY ranking;
 -- No inconsistent data found
-
 SELECT DISTINCT percentile_ranking FROM interest_metrics ORDER BY percentile_ranking;
 -- A 0 value exists but is valid — percentile rank ranges between 0 and 1
-
 
 -- 4. DATE RANGES
 -- Date range check will be performed after fixing data types
 -- and converting month_year to proper date format during cleaning
-
 
 -- 5. NULL / BLANK VALUES CHECK
 SELECT 
@@ -69,7 +58,6 @@ FROM interest_metrics;
 -- interest_id has 1193 NULL string values
 -- The 1 difference is because one row has a valid interest_id but NULL date values
 -- This is a data pipeline error — date was lost during ingestion
-
 
 -- 6. GRANULARITY CHECK
 SELECT COUNT(*), COUNT(DISTINCT interest_id) 
@@ -86,7 +74,6 @@ SELECT column_name, data_type, is_nullable, character_maximum_length
 FROM information_schema.columns
 WHERE table_name = 'interest_map';
 
-
 -- 2. DUPLICATE CHECK
 WITH duplicate_cte AS (
     SELECT *, 
@@ -99,12 +86,10 @@ FROM duplicate_cte
 WHERE row_num > 1;
 -- Result: No duplicates found in interest_map table
 
-
 -- 3. DATE RANGES
 SELECT MAX(created_at), MIN(created_at) FROM interest_map;
 SELECT MAX(last_modified), MIN(last_modified) FROM interest_map;
 -- No sentinel or high date values found in created_at or last_modified
-
 
 -- 4. NULL / BLANK VALUES CHECK
 SELECT 
@@ -120,9 +105,51 @@ SELECT * FROM interest_map
 WHERE interest_summary = '';
 -- 20 rows with blank interest_summary confirmed
 
-
 -- 5. LOGICAL DATE CHECK
 SELECT *
 FROM interest_map
 WHERE last_modified < created_at;
 -- No logical date errors found — last_modified is always after created_at
+
+-- ============================================================
+-- REFERENTIAL INTEGRITY CHECK — INTEREST_METRICS VS INTEREST_MAP
+-- ============================================================
+
+-- Check 1: interest_ids in interest_metrics with no match in interest_map
+SELECT COUNT(imt.interest_id)
+FROM interest_metrics AS imt
+LEFT JOIN interest_map AS imp ON imt.interest_id = imp.id
+WHERE imp.id IS NULL;
+-- Result: 1193 rows — all are NULL string values found during profiling
+-- Not true orphan records — these are data errors to be fixed during cleaning
+
+-- Check 2: ids in interest_map not used in interest_metrics
+SELECT imp.id
+FROM interest_metrics AS imt
+RIGHT JOIN interest_map AS imp ON imt.interest_id = imp.id
+WHERE imt.interest_id IS NULL;
+-- Result: 7 interest_ids exist in interest_map but not in interest_metrics
+-- These may be reserved for future use or interests with no recorded activity
+
+-- Check 3: Count match after excluding NULL strings
+SELECT COUNT(DISTINCT imt.interest_id), COUNT(DISTINCT imp.id)
+FROM interest_metrics AS imt
+LEFT JOIN interest_map AS imp ON imt.interest_id = imp.id
+WHERE imt.interest_id != 'NULL';
+-- After filtering NULL strings — counts align correctly
+-- The earlier mismatch of 1203 vs 1202 was caused by NULL string
+-- being counted as one extra distinct value
+
+/*
+PROFILING SUMMARY — INTEREST_METRICS & INTEREST_MAP
+- interest_metrics: 14273 total rows, 1203 unique interest_ids
+- interest_map: no duplicates, clean structure
+- 30 exact duplicates found in interest_metrics — to be removed during cleaning
+- 1194 NULL string values in date columns — to be converted to actual NULL
+- 1193 NULL string values in interest_id — same rows as above (data pipeline error)
+- One row has valid interest_id but NULL date — date lost during ingestion
+- 20 blank interest_summary values in interest_map — kept for now
+- 7 interest_ids in interest_map not present in interest_metrics — possibly reserved
+- No sentinel date values, no logical date errors
+- Referential integrity confirmed after excluding NULL string values
+*/
