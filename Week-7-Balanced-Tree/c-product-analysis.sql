@@ -106,3 +106,17 @@ WITH product_cte AS (
 SELECT *, 
     ROUND(revenue / SUM(revenue) OVER() * 100, 2) AS percent_by_revenue
 FROM product_cte;
+
+-- 9: What is the total transaction penetration for each product?
+-- Penetration = % of unique transactions containing at least 1 unit of a specific product
+-- Always COUNT(DISTINCT txn_id) — never COUNT rows
+WITH product_cte AS (
+    SELECT pd.product_name, COUNT(DISTINCT txn_id) AS transactions
+    FROM sales AS s
+    JOIN product_details AS pd ON s.prod_id = pd.product_id
+    GROUP BY pd.product_name
+)
+SELECT 
+    product_name, 
+    ROUND(transactions / (SELECT COUNT(DISTINCT txn_id) FROM sales) * 100, 2) AS penetration_rate
+FROM product_cte;
