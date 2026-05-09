@@ -39,3 +39,13 @@ rank_cte AS (
 SELECT segment_name, product_name, total_quantity
 FROM rank_cte
 WHERE row_num = 1;
+
+-- 4: What is the total quantity, revenue and discount for each category?
+SELECT 
+    pd.category_name, 
+    SUM(s.qty)                                          AS total_quantity, 
+    SUM(s.qty * s.price)                                AS revenue, 
+    ROUND(SUM(s.qty * s.price * s.discount / 100), 2)  AS discount
+FROM sales AS s
+JOIN product_details AS pd ON s.prod_id = pd.product_id
+GROUP BY pd.category_name;
