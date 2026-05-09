@@ -120,3 +120,29 @@ SELECT
     product_name, 
     ROUND(transactions / (SELECT COUNT(DISTINCT txn_id) FROM sales) * 100, 2) AS penetration_rate
 FROM product_cte;
+
+
+-- C0: What is the most common combination of any 3 products in a single transaction?
+-- Technique: Self join sales table 3 times on txn_id
+-- Key filter: s1.prod_id < s2.prod_id < s3.prod_id
+-- This enforces alphabetical ordering and eliminates duplicate combinations
+WITH product_cte AS (
+    SELECT s1.prod_id AS id1, s2.prod_id AS id2, s3.prod_id AS id3, COUNT(*) AS total
+    FROM sales AS s1
+    JOIN sales AS s2 ON s1.txn_id = s2.txn_id
+    JOIN sales AS s3 ON s2.txn_id = s3.txn_id
+    WHERE s1.prod_id < s2.prod_id AND s2.prod_id < s3.prod_id
+    GROUP BY 1, 2, 3
+)
+SELECT 
+    pd1.product_name AS product_1, 
+    pd2.product_name AS product_2, 
+    pd3.product_name AS product_3, 
+    total AS combination_count
+FROM product_cte AS pct
+JOIN product_details AS pd1 ON pct.id1 = pd1.product_id
+JOIN product_details AS pd2 ON pct.id2 = pd2.product_id
+JOIN product_details AS pd3 ON pct.id3 = pd3.product_id
+ORDER BY total DESC 
+LIMIT 3;
+-- Result: White Tee Shirt - Mens | Grey Fashion Jacket - Womens | Teal Button Up Shirt - Mens = 352
