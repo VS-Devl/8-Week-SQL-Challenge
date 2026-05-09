@@ -65,3 +65,18 @@ rank_cte AS (
 SELECT category_name, product_name, total_quantity
 FROM rank_cte
 WHERE row_num = 1;
+
+
+-- 6: What is the percentage split of revenue by product for each segment?
+-- SUM() OVER(PARTITION BY segment_name) gives segment total as denominator
+WITH product_cte AS (
+    SELECT pd.segment_name, pd.product_name, SUM(s.qty * s.price) AS revenue
+    FROM sales AS s
+    JOIN product_details AS pd ON s.prod_id = pd.product_id
+    GROUP BY 1, 2
+)
+SELECT 
+    segment_name, 
+    product_name, 
+    ROUND(revenue / SUM(revenue) OVER(PARTITION BY segment_name) * 100, 2) AS percent_by_product
+FROM product_cte;
