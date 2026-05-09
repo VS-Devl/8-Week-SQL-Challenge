@@ -49,3 +49,19 @@ SELECT
 FROM sales AS s
 JOIN product_details AS pd ON s.prod_id = pd.product_id
 GROUP BY pd.category_name;
+
+-- 5: What is the top selling product for each category?
+-- Ranked by total quantity sold
+WITH product_cte AS (
+    SELECT pd.category_name, pd.product_name, SUM(s.qty) AS total_quantity
+    FROM sales AS s
+    JOIN product_details AS pd ON s.prod_id = pd.product_id
+    GROUP BY 1, 2
+),
+rank_cte AS (
+    SELECT *, ROW_NUMBER() OVER(PARTITION BY category_name ORDER BY total_quantity DESC) AS row_num
+    FROM product_cte
+)
+SELECT category_name, product_name, total_quantity
+FROM rank_cte
+WHERE row_num = 1;
