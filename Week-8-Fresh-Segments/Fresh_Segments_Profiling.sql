@@ -76,3 +76,53 @@ SELECT COUNT(*), COUNT(DISTINCT interest_id)
 FROM interest_metrics;
 -- 14273 total rows, 1203 unique interest_ids
 -- One row = one interest_id in one specific month/year combination
+
+-- ============================================================
+-- TABLE: INTEREST_MAP
+-- ============================================================
+
+-- 1. DATA TYPE AND SCHEMA VALIDATION
+SELECT column_name, data_type, is_nullable, character_maximum_length
+FROM information_schema.columns
+WHERE table_name = 'interest_map';
+
+
+-- 2. DUPLICATE CHECK
+WITH duplicate_cte AS (
+    SELECT *, 
+           ROW_NUMBER() OVER(PARTITION BY id, interest_name, interest_summary, 
+                             created_at, last_modified) AS row_num
+    FROM interest_map
+)
+SELECT *
+FROM duplicate_cte
+WHERE row_num > 1;
+-- Result: No duplicates found in interest_map table
+
+
+-- 3. DATE RANGES
+SELECT MAX(created_at), MIN(created_at) FROM interest_map;
+SELECT MAX(last_modified), MIN(last_modified) FROM interest_map;
+-- No sentinel or high date values found in created_at or last_modified
+
+
+-- 4. NULL / BLANK VALUES CHECK
+SELECT 
+    SUM(CASE WHEN id IS NULL OR id = 'NULL' OR id = '' THEN 1 ELSE 0 END)                       AS id_null,
+    SUM(CASE WHEN interest_name IS NULL OR interest_name = 'NULL' OR interest_name = '' THEN 1 ELSE 0 END)   AS interest_name_null,
+    SUM(CASE WHEN interest_summary IS NULL OR interest_summary = 'NULL' OR interest_summary = '' THEN 1 ELSE 0 END) AS summary_null
+FROM interest_map;
+-- 20 blank values found in interest_summary column
+-- No NULLs in id or interest_name columns
+-- Blank summaries kept for now — will revisit during analysis
+
+SELECT * FROM interest_map
+WHERE interest_summary = '';
+-- 20 rows with blank interest_summary confirmed
+
+
+-- 5. LOGICAL DATE CHECK
+SELECT *
+FROM interest_map
+WHERE last_modified < created_at;
+-- No logical date errors found — last_modified is always after created_at
