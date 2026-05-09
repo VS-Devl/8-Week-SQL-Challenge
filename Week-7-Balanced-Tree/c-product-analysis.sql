@@ -94,3 +94,15 @@ SELECT
     segment_name, 
     ROUND(revenue / SUM(revenue) OVER(PARTITION BY category_name) * 100, 2) AS percent_by_segment
 FROM product_cte;
+
+-- 8: What is the percentage split of total revenue by category?
+-- SUM() OVER() without PARTITION BY gives grand total as denominator
+WITH product_cte AS (
+    SELECT pd.category_name, SUM(s.qty * s.price) AS revenue
+    FROM sales AS s
+    JOIN product_details AS pd ON s.prod_id = pd.product_id
+    GROUP BY pd.category_name
+)
+SELECT *, 
+    ROUND(revenue / SUM(revenue) OVER() * 100, 2) AS percent_by_revenue
+FROM product_cte;
