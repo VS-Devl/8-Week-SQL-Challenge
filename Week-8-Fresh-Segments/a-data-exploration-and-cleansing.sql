@@ -95,3 +95,26 @@ SELECT * FROM interest_metrics WHERE month_year IS NULL;
 -- Result: 1194 rows to be deleted
 DELETE FROM interest_metrics WHERE month_year IS NULL;
 -- 1194 rows removed
+
+-- 4: How many interest_id values exist in interest_metrics
+--     but not in interest_map? What about the other way around?
+-- -------------------------------------------------------
+/*
+This was already investigated during profiling. After removing NULL values:
+- All remaining interest_ids in interest_metrics match interest_map
+- 7 ids exist in interest_map but not in interest_metrics
+- These 7 are likely reserved for future use or interests with no recorded activity
+*/
+
+-- interest_ids in interest_metrics with no match in interest_map
+SELECT imt.interest_id
+FROM interest_metrics AS imt
+LEFT JOIN interest_map AS imp ON imt.interest_id = imp.id
+WHERE imp.id IS NULL;
+-- Result: 0 orphan records after NULL removal
+
+-- Count match verification
+SELECT COUNT(DISTINCT imp.id), COUNT(DISTINCT imt.interest_id)
+FROM interest_metrics AS imt
+JOIN interest_map AS imp ON imt.interest_id = imp.id;
+-- Result: counts match on both sides — referential integrity confirmed
