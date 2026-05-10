@@ -59,3 +59,20 @@ SELECT COUNT(*) AS rows_to_remove
 FROM interest_metrics
 WHERE interest_id IN (SELECT interest_id FROM month_cte);
 -- Result: 400 rows to be removed — approximately 3% of total data
+
+-- 4: Does this decision make sense from a business perspective?
+-- -------------------------------------------------------
+/*
+A segment appearing in all 14 months is stable and reliable — businesses can 
+confidently target these customers with marketing campaigns.
+
+A segment appearing in fewer than 6 months is inconsistent — it could be a 
+one-time trend, seasonal noise, or a data pipeline error. Targeting such segments 
+wastes marketing budget with no guaranteed return.
+
+By removing interests with fewer than 6 months we keep only reliable, 
+trend-following segments that customers consistently engage with.
+
+The data loss is only 400 rows — approximately 3% of the complete dataset.
+This is a small and acceptable sacrifice for significantly cleaner analysis.
+*/
