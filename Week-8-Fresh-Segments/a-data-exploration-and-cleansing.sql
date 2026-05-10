@@ -62,3 +62,16 @@ SET month_date = STR_TO_DATE(month_year, '%d-%m-%Y');
 ALTER TABLE interest_metrics DROP COLUMN month_year;
 ALTER TABLE interest_metrics RENAME COLUMN month_date TO month_year;
 
+
+-- 2: Count of records for each month_year value sorted chronologically
+--     with NULL values appearing first
+-- -------------------------------------------------------
+-- Forcing NULLs first using CASE WHEN — assigns 0 to NULL (sorts before 1)
+SELECT 
+    month_year, 
+    COUNT(*) AS records
+FROM interest_metrics
+GROUP BY month_year
+ORDER BY 
+    CASE WHEN month_year IS NULL THEN 0 ELSE 1 END,
+    month_year ASC;
