@@ -45,3 +45,17 @@ FROM total_cte
 ORDER BY month_count DESC;
 -- Result: At 6 months the cumulative percentage crosses 90% (90.8486%)
 -- Interests appearing in fewer than 6 months are considered low quality segments
+
+
+-- 3: How many total data points would we be removing if we remove all
+--     interest_id values with fewer than 6 months?
+WITH month_cte AS (
+    SELECT interest_id
+    FROM interest_metrics
+    GROUP BY interest_id
+    HAVING COUNT(month_year) < 6
+)
+SELECT COUNT(*) AS rows_to_remove
+FROM interest_metrics
+WHERE interest_id IN (SELECT interest_id FROM month_cte);
+-- Result: 400 rows to be removed — approximately 3% of total data
