@@ -118,3 +118,9 @@ SELECT COUNT(DISTINCT imp.id), COUNT(DISTINCT imt.interest_id)
 FROM interest_metrics AS imt
 JOIN interest_map AS imp ON imt.interest_id = imp.id;
 -- Result: counts match on both sides — referential integrity confirmed
+
+-- 5: Summarise the id values in interest_map by total record count
+-- -------------------------------------------------------
+SELECT COUNT(id) AS total_records
+FROM interest_map;
+-- Result: 1209 total records in interest_map
