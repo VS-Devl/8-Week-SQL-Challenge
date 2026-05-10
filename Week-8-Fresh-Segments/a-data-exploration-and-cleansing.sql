@@ -144,3 +144,23 @@ JOIN interest_map AS imp ON imt.interest_id = imp.id
 WHERE imt.interest_id = 21246;
 -- Result: 10 rows — one per month for this interest across the full date range
 
+-- 7: Are there any records where month_year is before created_at?
+--     Are these values valid?
+-- -------------------------------------------------------
+/*
+188 records found where month_year < created_at.
+These are VALID — not data errors.
+
+Reason: During date conversion, we prepended '01-' to force the date to the
+1st of every month. The created_at column has the actual exact creation date.
+If an interest was created on June 11 2018 and month_year is 2018-06-01 —
+it appears the metric came before the interest existed. But both are in 
+June 2018 — the same month. This is an artifact of our date conversion,
+not a real data quality issue.
+*/
+
+SELECT COUNT(*)
+FROM interest_metrics AS imt
+JOIN interest_map AS imp ON imt.interest_id = imp.id
+WHERE imt.month_year < imp.created_at;
+-- Result: 188 records — all valid, same month different day
