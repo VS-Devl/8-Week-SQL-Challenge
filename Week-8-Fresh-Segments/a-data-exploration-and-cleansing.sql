@@ -75,3 +75,23 @@ GROUP BY month_year
 ORDER BY 
     CASE WHEN month_year IS NULL THEN 0 ELSE 1 END,
     month_year ASC;
+
+-- 3: What should we do with NULL values in interest_metrics?
+-- -------------------------------------------------------
+/*
+During profiling, 1194 NULL string values were found in month_year, _month, 
+_year and interest_id columns. These were converted to actual NULLs in Step 1.
+
+This is a time-series analysis dataset — every question involves monthly trends,
+rankings by month and period comparisons. A row without a date cannot contribute
+to any meaningful analysis.
+
+Decision: Remove all rows where month_year is NULL.
+The 1 row with a valid interest_id but NULL date is also removed — without a date,
+it cannot be used in any time-based analysis.
+*/
+
+SELECT * FROM interest_metrics WHERE month_year IS NULL;
+-- Result: 1194 rows to be deleted
+DELETE FROM interest_metrics WHERE month_year IS NULL;
+-- 1194 rows removed
