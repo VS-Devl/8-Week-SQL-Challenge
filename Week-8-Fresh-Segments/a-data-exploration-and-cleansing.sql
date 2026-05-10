@@ -124,3 +124,23 @@ JOIN interest_map AS imp ON imt.interest_id = imp.id;
 SELECT COUNT(id) AS total_records
 FROM interest_map;
 -- Result: 1209 total records in interest_map
+
+
+-- 6: What sort of table join should we perform for our analysis and why?
+-- -------------------------------------------------------
+/*
+INNER JOIN is the correct choice because:
+- We only want interests that have both metrics data AND a name/description
+- The 7 unmatched ids in interest_map are useless without metrics data
+- After cleaning, all remaining interest_ids in interest_metrics have a match
+*/
+
+-- Verify join logic using interest_id = 21246
+SELECT 
+    imp.interest_name, imp.interest_summary, imp.created_at, imp.last_modified, imt._month, 
+    imt._year, imt.month_year,imt.interest_id, imt.composition, imt.index_value, imt.ranking, imt.percentile_ranking
+FROM interest_metrics AS imt
+JOIN interest_map AS imp ON imt.interest_id = imp.id
+WHERE imt.interest_id = 21246;
+-- Result: 10 rows — one per month for this interest across the full date range
+
