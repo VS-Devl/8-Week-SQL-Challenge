@@ -30,3 +30,14 @@ JOIN interest_map AS imp
 ORDER BY mac.maximum DESC 
 LIMIT 10;
 -- Change ORDER BY to ASC LIMIT 10 for bottom 10
+
+-- 2: Which 5 interests had the lowest average ranking value?
+SELECT 
+    imp.interest_name, 
+    ROUND(AVG(imt.ranking), 2) AS average_rank
+FROM interest_metrics AS imt
+JOIN interest_map AS imp ON imt.interest_id = imp.id
+GROUP BY imp.interest_name
+ORDER BY average_rank ASC 
+LIMIT 5;
+-- Result: Winter Apparel Shoppers ranks 1st with perfect average rank of 1.00
