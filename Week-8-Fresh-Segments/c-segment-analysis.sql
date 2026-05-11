@@ -41,3 +41,18 @@ GROUP BY imp.interest_name
 ORDER BY average_rank ASC 
 LIMIT 5;
 -- Result: Winter Apparel Shoppers ranks 1st with perfect average rank of 1.00
+
+-- 3: Which 5 interests had the largest standard deviation in percentile_ranking?
+-- Standard deviation measures how widely spread the values are from the mean
+-- High stddev = volatile interest — sometimes very high, sometimes very low ranking
+SELECT 
+    imp.interest_name, 
+    ROUND(STDDEV_SAMP(imt.percentile_ranking), 2) AS st_dev
+FROM interest_metrics AS imt
+JOIN interest_map AS imp ON imt.interest_id = imp.id
+GROUP BY imp.interest_name
+ORDER BY st_dev DESC 
+LIMIT 5;
+-- Result: Techies (30.18), Entertainment Industry Decision Makers (28.97)
+-- These are volatile interests — seasonal or event-driven spikes
+
