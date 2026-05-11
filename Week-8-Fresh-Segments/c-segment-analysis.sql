@@ -56,3 +56,49 @@ LIMIT 5;
 -- Result: Techies (30.18), Entertainment Industry Decision Makers (28.97)
 -- These are volatile interests — seasonal or event-driven spikes
 
+
+-- 4: For the 5 interests from C3 — minimum and maximum percentile_ranking
+--     with corresponding month_year for each
+-- -------------------------------------------------------
+-- Step 1: Get top 5 interests by standard deviation
+-- Step 2: Find max and min percentile_ranking per interest
+-- Step 3: Double join back to interest_metrics to get corresponding month_year
+--         for both maximum and minimum values
+
+WITH std_cte AS (
+    SELECT 
+        imt.interest_id, 
+        ROUND(STDDEV_SAMP(imt.percentile_ranking), 2) AS st_dev
+    FROM interest_metrics AS imt
+    JOIN interest_map AS imp ON imt.interest_id = imp.id
+    GROUP BY imt.interest_id
+    ORDER BY st_dev DESC 
+    LIMIT 5
+),
+rank_cte AS (
+    SELECT 
+        sc.interest_id, 
+        MAX(imt.percentile_ranking) AS maximum, 
+        MIN(imt.percentile_ranking) AS minimum
+    FROM std_cte AS sc
+    JOIN interest_metrics AS imt ON sc.interest_id = imt.interest_id
+    GROUP BY sc.interest_id
+)
+SELECT 
+    rc.interest_id, 
+    imp.interest_name, 
+    imt.month_year   AS max_month_year,
+    rc.maximum, 
+    imt2.month_year  AS min_month_year,
+    rc.minimum
+FROM rank_cte AS rc
+JOIN interest_metrics AS imt  
+    ON rc.interest_id = imt.interest_id 
+    AND rc.maximum = imt.percentile_ranking
+JOIN interest_metrics AS imt2 
+    ON rc.interest_id = imt2.interest_id 
+    AND rc.minimum = imt2.percentile_ranking
+JOIN interest_map AS imp ON rc.interest_id = imp.id;
+-- These interests show dramatic drops in ranking — classic seasonal trend pattern
+-- Tampa Trip Planners: 75.03 (Jul 2018) → 4.84 (Mar 2019) — summer travel season
+-- Personalized Gift Shoppers: 73.15 (Mar 2019) → 5.70 (Jun 2019) — event driven
