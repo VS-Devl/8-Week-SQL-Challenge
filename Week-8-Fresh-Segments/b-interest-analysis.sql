@@ -76,3 +76,24 @@ trend-following segments that customers consistently engage with.
 The data loss is only 400 rows — approximately 3% of the complete dataset.
 This is a small and acceptable sacrifice for significantly cleaner analysis.
 */
+
+-- 5: After removing low quality interests — how many unique interests per month?
+-- -------------------------------------------------------
+-- Step 1: Delete rows where interest appears in fewer than 6 months
+WITH month_cte AS (
+    SELECT interest_id
+    FROM interest_metrics
+    GROUP BY interest_id
+    HAVING COUNT(month_year) < 6
+)
+DELETE FROM interest_metrics
+WHERE interest_id IN (SELECT interest_id FROM month_cte);
+-- Result: 400 rows deleted
+
+-- Step 2: Count unique interests per month after deletion
+SELECT 
+    month_year, 
+    COUNT(DISTINCT interest_id) AS unique_interests
+FROM interest_metrics
+GROUP BY month_year
+ORDER BY month_year;
