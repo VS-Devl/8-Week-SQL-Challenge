@@ -102,3 +102,31 @@ JOIN interest_map AS imp ON rc.interest_id = imp.id;
 -- These interests show dramatic drops in ranking — classic seasonal trend pattern
 -- Tampa Trip Planners: 75.03 (Jul 2018) → 4.84 (Mar 2019) — summer travel season
 -- Personalized Gift Shoppers: 73.15 (Mar 2019) → 5.70 (Jun 2019) — event driven
+
+-- 5: Customer segment description based on composition and ranking values
+-- -------------------------------------------------------
+/*
+SEGMENT ANALYSIS SUMMARY
+
+By analyzing the segments of customers, we have decided that these customers 
+are following trends. For example, a special event, holidays for a trip or picnic, 
+and entertainment decision-makers, like if a movie or show is coming, it starts 
+gaining hype, as was noted in our standard deviation question too.
+
+From our analysis and data, this shows that we have to track these trends if they 
+keep recurring over time, like summer holidays and specific events like Eid and 
+Eid ul-Adha. If Eid ul-Adha is approaching, we should create interest in buying 
+an animal for customers, and this will only work before Eid ul-Adha — after this, 
+there is no way people will show interest in it.
+
+WHAT TO SHOW: Seasonal and event-driven products at the right time —
+travel packages before summer, gifts before special occasions, 
+winter apparel before cold season.
+
+WHAT TO AVOID: Showing off-trend products during inactive periods —
+trip planner ads when there are no upcoming holidays, gift promotions 
+when no events are approaching, winter apparel during summer.
+
+Key insight: Timing is everything for these customer segments.
+Right product. Right time. Right customer.
+*/
