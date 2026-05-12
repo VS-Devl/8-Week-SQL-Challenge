@@ -68,3 +68,31 @@ SELECT
 FROM interest_cte
 GROUP BY interest_id
 ORDER BY total_appear DESC;
+
+-- -----------------------------------------------------------------------------
+-- 3: What is the average of the average composition for the top 10 interests for each month?
+-- -----------------------------------------------------------------------------
+WITH rank_cte AS (
+    SELECT 
+        *, 
+        DENSE_RANK() OVER(PARTITION BY month_year ORDER BY average_composition DESC) AS rnk_int
+    FROM interest_metrics
+),
+interest_cte AS (
+    SELECT 
+        interest_id, 
+        interest_name, 
+        month_year, 
+        average_composition, 
+        rnk_int
+    FROM rank_cte AS rc
+    JOIN interest_map AS imp ON rc.interest_id = imp.id
+    WHERE rnk_int BETWEEN 1 AND 10
+)
+SELECT 
+    month_year, 
+    ROUND(AVG(average_composition), 2) AS avg_value
+FROM interest_cte
+GROUP BY month_year
+ORDER BY month_year;
+
