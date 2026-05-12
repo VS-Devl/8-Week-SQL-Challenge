@@ -146,3 +146,23 @@ previous_cte AS (
 SELECT *
 FROM previous_cte
 WHERE month_year BETWEEN '2018-09-01' AND '2019-08-01';
+
+
+-- -----------------------------------------------------------------------------
+-- 5: Business Model Analysis & Data Quality Insight
+-- -----------------------------------------------------------------------------
+/*
+The highs and lows in the maximum average composition from month to month show that 
+most customers are seasonal, following short trends such as special events and 
+trip plans during holidays. 
+
+This may be due to data quality issues, as we have already removed 1,194 null values. 
+If the data had been extracted correctly, it may have assisted more in decision-making. 
+A small size of customers can act like outliers, which come into trend and disturb 
+the other interests. 
+
+The business risk is that if clients see their purchased segments performing very 
+differently, they will start losing trust in the Fresh Segments data product and 
+stop buying services from this platform. In conclusion, Fresh Segments should 
+demonstrate the main reasons why the data is showing month-to-month changes.
+*/
