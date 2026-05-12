@@ -96,3 +96,53 @@ FROM interest_cte
 GROUP BY month_year
 ORDER BY month_year;
 
+
+-- -----------------------------------------------------------------------------
+-- 4: What is the 3-month rolling average of the max average composition value?
+-- Includes September 2018 to August 2019 and the previous top-ranking interests.
+-- -----------------------------------------------------------------------------
+WITH rank_cte AS (
+    SELECT 
+        *, 
+        DENSE_RANK() OVER(PARTITION BY month_year ORDER BY average_composition DESC) AS rnk_int
+    FROM interest_metrics
+),
+interest_cte AS (
+    SELECT 
+        interest_id, 
+        interest_name, 
+        month_year, 
+        average_composition, 
+        rnk_int
+    FROM rank_cte AS rc
+    JOIN interest_map AS imp ON rc.interest_id = imp.id
+    WHERE rnk_int BETWEEN 1 AND 10
+),
+max_cte AS (
+    SELECT 
+        month_year, 
+        MAX(average_composition) AS max_composition
+    FROM interest_cte
+    GROUP BY month_year
+),
+moving_cte AS (
+    SELECT 
+        mx.month_year, 
+        ict.interest_name, 
+        mx.max_composition, 
+        ROUND(AVG(max_composition) OVER(ORDER BY mx.month_year ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 2) AS moving_avg
+    FROM max_cte AS mx
+    JOIN interest_cte AS ict 
+        ON mx.max_composition = ict.average_composition 
+        AND ict.month_year = mx.month_year
+),
+previous_cte AS (
+    SELECT 
+        *, 
+        CONCAT(LAG(interest_name) OVER(), ': ', LAG(max_composition) OVER()) AS 1_month_ago,
+        CONCAT(LAG(interest_name, 2) OVER(), ': ', LAG(max_composition, 2) OVER()) AS 2_month_ago
+    FROM moving_cte
+)
+SELECT *
+FROM previous_cte
+WHERE month_year BETWEEN '2018-09-01' AND '2019-08-01';
