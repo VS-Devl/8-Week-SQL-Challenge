@@ -42,3 +42,29 @@ JOIN interest_map AS imp ON rc.interest_id = imp.id
 WHERE rnk_int BETWEEN 1 AND 10
 ORDER BY month_year, rnk_int;
 
+-- -----------------------------------------------------------------------------
+-- 2: For all of these top 10 interests - which interest appears the most often?
+-- -----------------------------------------------------------------------------
+WITH rank_cte AS (
+    SELECT 
+        *, 
+        DENSE_RANK() OVER(PARTITION BY month_year ORDER BY average_composition DESC) AS rnk_int
+    FROM interest_metrics
+),
+interest_cte AS (
+    SELECT 
+        interest_id, 
+        interest_name, 
+        month_year, 
+        average_composition, 
+        rnk_int
+    FROM rank_cte AS rc
+    JOIN interest_map AS imp ON rc.interest_id = imp.id
+    WHERE rnk_int BETWEEN 1 AND 10
+)
+SELECT 
+    interest_id, 
+    COUNT(*) AS total_appear
+FROM interest_cte
+GROUP BY interest_id
+ORDER BY total_appear DESC;
