@@ -10,7 +10,7 @@ Each week is a standalone business problem with its own schema, questions, and d
 
 | Week | Business | What It's About |
 |------|----------|-----------------|
-| [Week 1 — Danny's Diner](./Week-1/) | Restaurant | Customer behaviour, visit patterns, loyalty program analysis |
+| [Week 1 — Danny's Diner](./Week-1-Dannys-Diner/) | Restaurant | Customer behaviour, visit patterns, loyalty program analysis |
 | [Week 2 — Pizza Runner](./Week-2/) | Food Delivery | Data cleaning, runner performance, revenue and profitability |
 | [Week 3 — Foodie-Fi](./Week-3/) | Subscription Streaming | Customer journey tracking, churn analysis, payment simulation |
 | [Week 4 — Data Bank](./Week-4/) | Digital Banking | Node reallocation, transaction patterns, cloud storage modelling |
