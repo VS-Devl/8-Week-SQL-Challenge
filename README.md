@@ -11,13 +11,13 @@ Each week is a standalone business problem with its own schema, questions, and d
 | Week | Business | What It's About |
 |------|----------|-----------------|
 | [Week 1 — Danny's Diner](./Week-1-Dannys-Diner/) | Restaurant | Customer behaviour, visit patterns, loyalty program analysis |
-| [Week 2 — Pizza Runner](./Week-2/) | Food Delivery | Data cleaning, runner performance, revenue and profitability |
-| [Week 3 — Foodie-Fi](./Week-3/) | Subscription Streaming | Customer journey tracking, churn analysis, payment simulation |
-| [Week 4 — Data Bank](./Week-4/) | Digital Banking | Node reallocation, transaction patterns, cloud storage modelling |
-| [Week 5 — Data Mart](./Week-5/) | Retail | Data cleaning, before-vs-after impact analysis of a packaging change |
-| [Week 6 — Clique Bait](./Week-6/) | E-commerce | Clickstream analysis, product funnel, campaign performance |
-| [Week 7 — Balanced Tree](./Week-7/) | Clothing Retail | Sales analysis, product mix, transaction behaviour, stored procedure |
-| [Week 8 — Fresh Segments](./Week-8/) | Digital Marketing | Interest segment analysis, data quality, rolling averages |
+| [Week 2 — Pizza Runner](./Week-2-Pizza-Runner/) | Food Delivery | Data cleaning, runner performance, revenue and profitability |
+| [Week 3 — Foodie-Fi](./Week-3-Foodie-Fi/) | Subscription Streaming | Customer journey tracking, churn analysis, payment simulation |
+| [Week 4 — Data Bank](./Week-4-Data-Bank/) | Digital Banking | Node reallocation, transaction patterns, cloud storage modelling |
+| [Week 5 — Data Mart](./Week-5-Data-Mart/) | Retail | Data cleaning, before-vs-after impact analysis of a packaging change |
+| [Week 6 — Clique Bait](./Week-6-Clique-Bait/) | E-commerce | Clickstream analysis, product funnel, campaign performance |
+| [Week 7 — Balanced Tree](./Week-7-Balanced-Tree/) | Clothing Retail | Sales analysis, product mix, transaction behaviour, stored procedure |
+| [Week 8 — Fresh Segments](./Week-8-Fresh-Segments/) | Digital Marketing | Interest segment analysis, data quality, rolling averages |
 
 ---
 
